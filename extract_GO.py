@@ -1,7 +1,7 @@
 import pandas as pd
 import json  # To save data in a structured format
 
-def extract_relevant_go_terms(csv_path, go_types, output_file="go_terms.txt"):
+def extract_relevant_go_terms(csv_path, go_types, output_file="go_extracted.txt"):
     """
     Extracts unique GO terms of specified types from a CSV file and saves them to a text file.
 
@@ -34,7 +34,9 @@ def extract_relevant_go_terms(csv_path, go_types, output_file="go_terms.txt"):
 
 
 if __name__ == "__main__":
-    csv_file = 'Smaller_Dataset.csv'
-    go_types_to_extract = ['Function', 'Process', 'Component']
-    output_text_file = "go_terms.txt"
-    extract_relevant_go_terms(csv_file, go_types_to_extract, output_text_file)
+    l = ["GSE38417","GSE6011","GSE19303","GSE42955"]
+    for i in l:
+        csv_file = 'Dataset_'+i+'.csv'
+        go_types_to_extract = ['Function', 'Process', 'Component']
+        output_text_file = i+"_extracted.txt"
+        extract_relevant_go_terms(csv_file, go_types_to_extract, output_text_file)
