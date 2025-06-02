@@ -1,420 +1,264 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch_geometric.nn import GCNConv, GATConv, global_mean_pool, global_max_pool
-from torch_geometric.data import Data, DataLoader
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_auc_score
-import networkx as nx
-from scipy.spatial.distance import pdist, squareform
-from scipy.stats import pearsonr
-import matplotlib.pyplot as plt
-import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectKBest, f_classif, RFE, RFECV
+from sklearn.metrics import classification_report, roc_auc_score
+from xgboost import XGBClassifier
+from sklearn.linear_model import LogisticRegression
 import warnings
 warnings.filterwarnings('ignore')
-print(torch.__version__)
-print(torch.backends.mps.is_available())
-device = torch.device("mps")
 
-class DMDGeneDataset:
-    """
-    Dataset class for processing gene expression data for DMD detection
-    """
-    def __init__(self, csv_file_path, correlation_threshold=0.7):
-        self.csv_file_path = csv_file_path
-        self.correlation_threshold = correlation_threshold
-        self.data = None
-        self.gene_features = None
-        self.labels = None
+class DMDGeneIdentifier:
+    def __init__(self):
+        self.feature_selector = None
         self.scaler = StandardScaler()
+        self.ensemble_model = None
+        self.feature_names = None
         
-    def load_and_preprocess_data(self):
-        """Load and preprocess the gene expression data"""
-        # Load the dataset
-        self.data = pd.read_csv(self.csv_file_path)
+    def create_enhanced_features(self, df):
+        """Create enhanced features for DMD identification"""
+        features = []
+        feature_names = []
         
-        print(f"Dataset shape: {self.data.shape}")
-        print(f"Columns: {list(self.data.columns)}")
+        # 1. GO Term Features (weighted by relevance)
+        dmd_go_weights = {
+            'muscle': 3.0,
+            'dystrophin': 5.0,
+            'cytoskeleton': 2.0,
+            'membrane': 2.0,
+            'calcium': 1.5,
+            'contraction': 2.5
+        }
         
-        # Extract relevant features for DMD detection
-        # Focus on gene expression and functional annotations
-        feature_columns = [
-            'Gene ID', 'Gene symbol', 'Chromosome location',
-            'GO:Function', 'GO:Process', 'GO:Component'
+        for col in ['GO:Function', 'GO:Process', 'GO:Component']:
+            if col in df.columns:
+                for term, weight in dmd_go_weights.items():
+                    feature_col = df[col].astype(str).str.lower().str.contains(term, na=False).astype(float) * weight
+                    features.append(feature_col)
+                    feature_names.append(f'{col}_{term}_weighted')
+        
+        # 2. Gene Title Features
+        if 'Gene title' in df.columns:
+            dmd_keywords = ['duchenne', 'dystrophin', 'muscle', 'myosin', 'actin', 'membrane']
+            for keyword in dmd_keywords:
+                feature_col = df['Gene title'].astype(str).str.lower().str.contains(keyword, na=False).astype(float)
+                features.append(feature_col)
+                feature_names.append(f'title_{keyword}')
+        
+        # 3. Gene Symbol Features
+        if 'Gene symbol' in df.columns:
+            # Known DMD-related gene families
+            dmd_families = ['DMD', 'DCM', 'SGCA', 'SGCB', 'SGCD', 'SGCG', 'CAPN3', 'DYSF']
+            for family in dmd_families:
+                feature_col = df['Gene symbol'].astype(str).str.upper().str.contains(family, na=False).astype(float)
+                features.append(feature_col)
+                feature_names.append(f'symbol_{family}')
+        
+        # 4. Interaction Features (combinations of GO terms)
+        if len(features) >= 3:
+            # Muscle + membrane interaction
+            muscle_idx = next((i for i, name in enumerate(feature_names) if 'muscle' in name), None)
+            membrane_idx = next((i for i, name in enumerate(feature_names) if 'membrane' in name), None)
+            
+            if muscle_idx is not None and membrane_idx is not None:
+                interaction_feature = features[muscle_idx] * features[membrane_idx]
+                features.append(interaction_feature)
+                feature_names.append('muscle_membrane_interaction')
+        
+        # Convert to DataFrame
+        feature_df = pd.DataFrame(np.column_stack(features), columns=feature_names)
+        self.feature_names = feature_names
+        
+        return feature_df
+    
+    def create_labels(self, df):
+        """Create labels based on known DMD genes"""
+        known_dmd_genes = [
+            'DMD', 'SGCA', 'SGCB', 'SGCD', 'SGCG', 'CAPN3', 'DYSF', 'TCAP', 
+            'POMT1', 'POMT2', 'POMGNT1', 'FKTN', 'FKRP', 'LARGE', 'DAG1'
         ]
         
-        # Create synthetic expression data and DMD labels for demonstration
-        # In real scenario, you would have actual expression values and DMD diagnosis
-        np.random.seed(42)
-        n_samples = len(self.data)
+        if 'Gene symbol' in df.columns:
+            labels = df['Gene symbol'].astype(str).str.upper().isin(known_dmd_genes).astype(int)
+        else:
+            # Fallback to keyword-based labeling
+            labels = np.zeros(len(df))
+            if 'Gene title' in df.columns:
+                dmd_keywords = ['duchenne', 'dystrophin']
+                for keyword in dmd_keywords:
+                    labels += df['Gene title'].astype(str).str.lower().str.contains(keyword, na=False).astype(int)
+                labels = (labels > 0).astype(int)
         
-        # Create synthetic gene expression matrix
-        self.gene_features = np.random.randn(n_samples, 100)  # 100 expression features
-        
-        # Create synthetic DMD labels (0: healthy, 1: DMD positive)
-        # In practice, this would come from clinical diagnosis
-        self.labels = np.random.binomial(1, 0.3, n_samples)  # 30% DMD positive
-        
-        # Add some correlation between certain genes and DMD status
-        dmd_related_genes = [0, 5, 10, 15, 20]  # Indices of DMD-related genes
-        for gene_idx in dmd_related_genes:
-            self.gene_features[:, gene_idx] += self.labels * 2 + np.random.randn(n_samples) * 0.5
-        
-        # Normalize features
-        self.gene_features = self.scaler.fit_transform(self.gene_features)
-        
-        return self.gene_features, self.labels
+        return labels
     
-    def create_gene_interaction_graph(self):
-        """Create gene interaction graph based on correlation"""
-        # Calculate correlation matrix
-        corr_matrix = np.corrcoef(self.gene_features.T)
+    def advanced_feature_selection(self, X, y):
+        """Advanced feature selection combining multiple methods"""
+        # 1. Statistical filter (ANOVA F-test)
+        k_best = SelectKBest(score_func=f_classif, k=min(50, X.shape[1]))
+        X_filtered = k_best.fit_transform(X, y)
+        selected_features_mask = k_best.get_support()
         
-        # Create adjacency matrix based on correlation threshold
-        adj_matrix = (np.abs(corr_matrix) > self.correlation_threshold).astype(int)
-        np.fill_diagonal(adj_matrix, 0)  # Remove self-loops
+        # 2. Recursive Feature Elimination with Random Forest
+        rf_selector = RandomForestClassifier(n_estimators=100, random_state=42)
+        rfe = RFECV(rf_selector, step=1, cv=3, scoring='roc_auc', min_features_to_select=5)
         
-        # Convert to edge indices for PyTorch Geometric
-        edge_indices = np.where(adj_matrix == 1)
-        edge_index = torch.tensor(np.array([edge_indices[0], edge_indices[1]]), dtype=torch.long)
+        # Apply RFE on filtered features
+        X_rfe = rfe.fit_transform(X_filtered, y)
         
-        # Create edge weights based on correlation strength
-        edge_weights = []
-        for i, j in zip(edge_indices[0], edge_indices[1]):
-            edge_weights.append(abs(corr_matrix[i, j]))
-        edge_attr = torch.tensor(edge_weights, dtype=torch.float).unsqueeze(1)
+        # Combine selection masks
+        final_mask = np.zeros(X.shape[1], dtype=bool)
+        selected_indices = np.where(selected_features_mask)[0]
+        rfe_selected = selected_indices[rfe.get_support()]
+        final_mask[rfe_selected] = True
         
-        return edge_index, edge_attr, adj_matrix
-
-class DMDGraphNet(nn.Module):
-    """
-    Graph Neural Network for DMD detection using gene expression data
-    """
-    def __init__(self, num_features, hidden_dim=64, num_classes=2, dropout=0.5):
-        super(DMDGraphNet, self).__init__()
-        
-        # Graph convolutional layers
-        self.conv1 = GCNConv(num_features, hidden_dim)
-        self.conv2 = GCNConv(hidden_dim, hidden_dim)
-        self.conv3 = GCNConv(hidden_dim, hidden_dim // 2)
-        
-        # Attention mechanism
-        self.attention = GATConv(hidden_dim // 2, hidden_dim // 4, heads=4, dropout=dropout)
-        
-        # Classification layers
-        self.classifier = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_dim // 2, num_classes)
+        return final_mask, X_rfe
+    
+    def create_ensemble_model(self):
+        """Create ensemble of different models"""
+        # Individual models
+        rf = RandomForestClassifier(
+            n_estimators=200, 
+            max_depth=10, 
+            min_samples_split=5,
+            class_weight='balanced',
+            random_state=42
         )
         
-        self.dropout = nn.Dropout(dropout)
+        xgb = XGBClassifier(
+            n_estimators=200,
+            max_depth=6,
+            learning_rate=0.1,
+            scale_pos_weight=10,  # For imbalanced data
+            random_state=42
+        )
         
-    def forward(self, x, edge_index, batch=None):
-        # Graph convolution layers with residual connections
-        x1 = F.relu(self.conv1(x, edge_index))
-        x1 = self.dropout(x1)
+        lr = LogisticRegression(
+            class_weight='balanced',
+            random_state=42,
+            max_iter=1000
+        )
         
-        x2 = F.relu(self.conv2(x1, edge_index))
-        x2 = self.dropout(x2)
+        # Voting ensemble
+        ensemble = VotingClassifier(
+            estimators=[('rf', rf), ('xgb', xgb), ('lr', lr)],
+            voting='soft'  # Use probabilities
+        )
         
-        x3 = F.relu(self.conv3(x2, edge_index))
-        x3 = self.dropout(x3)
-        
-        # Attention mechanism
-        x_att = self.attention(x3, edge_index)
-        x_att = F.relu(x_att)
-        x_att = self.dropout(x_att)
-        
-        # Global pooling for graph-level prediction
-        if batch is not None:
-            x_pool = global_mean_pool(x_att, batch)
-        else:
-            x_pool = torch.mean(x_att, dim=0, keepdim=True)
-        
-        # Classification
-        out = self.classifier(x_pool)
-        
-        return out
-
-class DMDDetectionPipeline:
-    """
-    Complete pipeline for DMD detection using GNN
-    """
-    def __init__(self, csv_file_path, correlation_threshold=0.7):
-        self.dataset = DMDGeneDataset(csv_file_path, correlation_threshold)
-        self.model = None
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        
-    def prepare_data(self):
-        """Prepare data for training"""
-        # Load and preprocess data
-        features, labels = self.dataset.load_and_preprocess_data()
-        
-        # Create gene interaction graph
-        edge_index, edge_attr, adj_matrix = self.dataset.create_gene_interaction_graph()
-        
-        # Convert to PyTorch tensors
-        x = torch.tensor(features.T, dtype=torch.float)  # Transpose for gene-wise features
-        y = torch.tensor(labels, dtype=torch.long)
-        
-        # Create PyTorch Geometric data object
-        data = Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=y)
-        
-        return data, adj_matrix
+        return ensemble
     
-    def train_model(self, data, epochs=200, lr=0.01):
-        """Train the GNN model"""
-        # Initialize model
-        self.model = DMDGraphNet(
-            num_features=data.x.shape[1],
-            hidden_dim=64,
-            num_classes=2,
-            dropout=0.5
-        ).to(self.device)
+    def train_and_evaluate(self, datasets):
+        """Train and evaluate on multiple datasets"""
+        all_results = {}
         
-        # Move data to device
-        data = data.to(self.device)
-        
-        # Split data for training and validation
-        num_nodes = data.x.shape[0]
-        train_mask = torch.zeros(num_nodes, dtype=torch.bool)
-        val_mask = torch.zeros(num_nodes, dtype=torch.bool)
-        test_mask = torch.zeros(num_nodes, dtype=torch.bool)
-        
-        # Create masks for train/val/test split
-        indices = torch.randperm(num_nodes)
-        train_size = int(0.6 * num_nodes)
-        val_size = int(0.2 * num_nodes)
-        
-        train_mask[indices[:train_size]] = True
-        val_mask[indices[train_size:train_size+val_size]] = True
-        test_mask[indices[train_size+val_size:]] = True
-        
-        # Optimizer and loss function
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=lr, weight_decay=5e-4)
-        criterion = nn.CrossEntropyLoss()
-        
-        # Training loop
-        train_losses = []
-        val_accuracies = []
-        
-        self.model.train()
-        for epoch in range(epochs):
-            optimizer.zero_grad()
+        for dataset_name in datasets:
+            print(f"\n{'='*50}")
+            print(f"Processing Dataset: {dataset_name}")
+            print(f"{'='*50}")
             
-            # Forward pass
-            out = self.model(data.x, data.edge_index)
-            
-            # Calculate loss only on training nodes
-            loss = criterion(out[train_mask], data.y[train_mask])
-            
-            # Backward pass
-            loss.backward()
-            optimizer.step()
-            
-            # Validation
-            if epoch % 10 == 0:
-                self.model.eval()
-                with torch.no_grad():
-                    val_out = self.model(data.x, data.edge_index)
-                    val_pred = val_out[val_mask].argmax(dim=1)
-                    val_acc = (val_pred == data.y[val_mask]).float().mean()
-                    val_accuracies.append(val_acc.item())
+            # Load data
+            try:
+                df = pd.read_csv(f'Dataset_{dataset_name}.csv')
+                print(f"Dataset shape: {df.shape}")
+                
+                # Create features and labels
+                X = self.create_enhanced_features(df)
+                y = self.create_labels(df)
+                
+                print(f"Features created: {X.shape[1]}")
+                print(f"Positive samples: {y.sum()}/{len(y)} ({y.mean()*100:.2f}%)")
+                
+                if y.sum() == 0:
+                    print("Warning: No positive samples found!")
+                    continue
+                
+                # Scale features
+                X_scaled = self.scaler.fit_transform(X)
+                
+                # Feature selection
+                feature_mask, X_selected = self.advanced_feature_selection(X_scaled, y)
+                selected_feature_names = [name for i, name in enumerate(self.feature_names) if feature_mask[i]]
+                
+                print(f"Selected features: {len(selected_feature_names)}")
+                print("Top selected features:", selected_feature_names[:10])
+                
+                # Create and train ensemble model
+                ensemble = self.create_ensemble_model()
+                
+                # Cross-validation evaluation
+                cv_scores = cross_val_score(
+                    ensemble, X_selected, y, 
+                    cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=42),
+                    scoring='roc_auc'
+                )
+                
+                print(f"Cross-validation ROC-AUC: {cv_scores.mean():.3f} (+/- {cv_scores.std() * 2:.3f})")
+                
+                # Train final model
+                ensemble.fit(X_selected, y)
+                
+                # Get feature importance from Random Forest component
+                rf_model = ensemble.named_estimators_['rf']
+                feature_importance = rf_model.feature_importances_
+                
+                # Create feature importance ranking
+                importance_df = pd.DataFrame({
+                    'feature': selected_feature_names,
+                    'importance': feature_importance
+                }).sort_values('importance', ascending=False)
+                
+                print("\nTop 10 Most Important Features:")
+                print(importance_df.head(10))
+                
+                # Predict on all samples
+                y_pred_proba = ensemble.predict_proba(X_selected)[:, 1]
+                
+                # Find high-confidence DMD-related genes
+                high_conf_threshold = 0.7
+                high_conf_indices = np.where(y_pred_proba > high_conf_threshold)[0]
+                
+                if len(high_conf_indices) > 0:
+                    high_conf_genes = df.iloc[high_conf_indices]['Gene symbol'].tolist()
+                    high_conf_scores = y_pred_proba[high_conf_indices]
                     
-                train_losses.append(loss.item())
-                print(f'Epoch {epoch:03d}, Loss: {loss:.4f}, Val Acc: {val_acc:.4f}')
-                self.model.train()
+                    print(f"\nHigh-confidence DMD-related genes (score > {high_conf_threshold}):")
+                    for gene, score in zip(high_conf_genes, high_conf_scores):
+                        print(f"  {gene}: {score:.3f}")
+                else:
+                    print(f"\nNo genes found with confidence > {high_conf_threshold}")
+                
+                # Store results
+                all_results[dataset_name] = {
+                    'cv_scores': cv_scores,
+                    'feature_importance': importance_df,
+                    'predictions': y_pred_proba,
+                    'genes': df['Gene symbol'].tolist() if 'Gene symbol' in df.columns else []
+                }
+                
+            except Exception as e:
+                print(f"Error processing {dataset_name}: {str(e)}")
+                continue
         
-        return train_losses, val_accuracies, (train_mask, val_mask, test_mask)
-    
-    def evaluate_model(self, data, test_mask):
-        """Evaluate the trained model"""
-        self.model.eval()
-        with torch.no_grad():
-            out = self.model(data.x, data.edge_index)
-            test_pred = out[test_mask].argmax(dim=1)
-            test_prob = F.softmax(out[test_mask], dim=1)[:, 1]  # Probability of DMD
-            
-            # Calculate metrics
-            test_acc = (test_pred == data.y[test_mask]).float().mean()
-            
-            # Convert to numpy for sklearn metrics
-            y_true = data.y[test_mask].cpu().numpy()
-            y_pred = test_pred.cpu().numpy()
-            y_prob = test_prob.cpu().numpy()
-            
-            precision, recall, f1, _ = precision_recall_fscore_support(y_true, y_pred, average='binary')
-            auc = roc_auc_score(y_true, y_prob)
-            
-            print(f"\nTest Results:")
-            print(f"Accuracy: {test_acc:.4f}")
-            print(f"Precision: {precision:.4f}")
-            print(f"Recall: {recall:.4f}")
-            print(f"F1-Score: {f1:.4f}")
-            print(f"AUC-ROC: {auc:.4f}")
-            
-            return {
-                'accuracy': test_acc.item(),
-                'precision': precision,
-                'recall': recall,
-                'f1': f1,
-                'auc': auc,
-                'predictions': y_pred,
-                'probabilities': y_prob,
-                'true_labels': y_true
-            }
-    
-    def predict_dmd_risk(self, patient_features):
-        """Predict DMD risk for new patient"""
-        self.model.eval()
-        with torch.no_grad():
-            # Assuming patient_features is a single sample
-            # In practice, you'd need to construct a graph for the new patient
-            patient_tensor = torch.tensor(patient_features, dtype=torch.float).unsqueeze(0)
-            
-            # For simplicity, using a dummy edge_index for single node
-            edge_index = torch.tensor([[0], [0]], dtype=torch.long)
-            
-            out = self.model(patient_tensor.T, edge_index)
-            prob = F.softmax(out, dim=1)[0, 1].item()  # Probability of DMD
-            
-            return prob
-    
-    def visualize_results(self, train_losses, val_accuracies, test_results, adj_matrix):
-        """Visualize training results and network structure"""
-        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-        
-        # Training loss
-        axes[0, 0].plot(range(0, len(train_losses) * 10, 10), train_losses)
-        axes[0, 0].set_title('Training Loss')
-        axes[0, 0].set_xlabel('Epoch')
-        axes[0, 0].set_ylabel('Loss')
-        axes[0, 0].grid(True)
-        
-        # Validation accuracy
-        axes[0, 1].plot(range(0, len(val_accuracies) * 10, 10), val_accuracies)
-        axes[0, 1].set_title('Validation Accuracy')
-        axes[0, 1].set_xlabel('Epoch')
-        axes[0, 1].set_ylabel('Accuracy')
-        axes[0, 1].grid(True)
-        
-        # Confusion matrix
-        from sklearn.metrics import confusion_matrix
-        cm = confusion_matrix(test_results['true_labels'], test_results['predictions'])
-        sns.heatmap(cm, annot=True, fmt='d', ax=axes[1, 0], cmap='Blues')
-        axes[1, 0].set_title('Confusion Matrix')
-        axes[1, 0].set_xlabel('Predicted')
-        axes[1, 0].set_ylabel('Actual')
-        
-        # Gene interaction network (sample)
-        # Show only a subset of genes for visualization
-        subset_size = min(20, adj_matrix.shape[0])
-        subset_adj = adj_matrix[:subset_size, :subset_size]
-        
-        G = nx.from_numpy_array(subset_adj)
-        pos = nx.spring_layout(G, k=1, iterations=50)
-        
-        axes[1, 1].clear()
-        nx.draw(G, pos, ax=axes[1, 1], node_size=300, node_color='lightblue', 
-                with_labels=True, font_size=8, edge_color='gray', alpha=0.7)
-        axes[1, 1].set_title('Gene Interaction Network (Sample)')
-        
-        plt.tight_layout()
-        plt.show()
+        return all_results
 
-# Example usage and demonstration
-def run_dmd_detection_pipeline(csv_file_path):
-    """
-    Run the complete DMD detection pipeline
-    """
-    print("=== DMD Detection using Graph Neural Networks ===\n")
-    
-    # Initialize pipeline
-    pipeline = DMDDetectionPipeline(csv_file_path, correlation_threshold=0.7)
-    
-    # Prepare data
-    print("1. Preparing data...")
-    data, adj_matrix = pipeline.prepare_data()
-    print(f"   Graph created with {data.x.shape[0]} nodes and {data.edge_index.shape[1]} edges")
-    
-    # Train model
-    print("\n2. Training GNN model...")
-    train_losses, val_accuracies, masks = pipeline.train_model(data, epochs=100, lr=0.01)
-    train_mask, val_mask, test_mask = masks
-    
-    # Evaluate model
-    print("\n3. Evaluating model...")
-    test_results = pipeline.evaluate_model(data, test_mask)
-    
-    # Visualize results
-    print("\n4. Visualizing results...")
-    pipeline.visualize_results(train_losses, val_accuracies, test_results, adj_matrix)
-    
-    # Example prediction for new patient
-    print("\n5. Example prediction for new patient:")
-    dummy_patient_features = np.random.randn(100)  # 100 gene expression features
-    dmd_risk = pipeline.predict_dmd_risk(dummy_patient_features)
-    print(f"   DMD Risk Probability: {dmd_risk:.4f}")
-    if dmd_risk > 0.5:
-        print("   Classification: HIGH RISK for DMD")
-    else:
-        print("   Classification: LOW RISK for DMD")
-    
-    return pipeline, test_results
-
-# Clinical interpretation function
-def interpret_dmd_results(test_results, threshold=0.5):
-    """
-    Provide clinical interpretation of DMD detection results
-    """
-    print("\n=== Clinical Interpretation ===")
-    
-    high_risk_count = sum(test_results['probabilities'] > threshold)
-    total_patients = len(test_results['probabilities'])
-    
-    print(f"Total patients analyzed: {total_patients}")
-    print(f"High-risk patients (>{threshold:.1f} probability): {high_risk_count}")
-    print(f"Low-risk patients: {total_patients - high_risk_count}")
-    print(f"High-risk percentage: {(high_risk_count/total_patients)*100:.1f}%")
-    
-    # Risk stratification
-    very_high_risk = sum(test_results['probabilities'] > 0.8)
-    moderate_risk = sum((test_results['probabilities'] > 0.3) & 
-                       (test_results['probabilities'] <= 0.8))
-    low_risk = sum(test_results['probabilities'] <= 0.3)
-    
-    print(f"\nRisk Stratification:")
-    print(f"Very High Risk (>0.8): {very_high_risk} patients")
-    print(f"Moderate Risk (0.3-0.8): {moderate_risk} patients")
-    print(f"Low Risk (≤0.3): {low_risk} patients")
-    
-    print(f"\nModel Performance Summary:")
-    print(f"Sensitivity (Recall): {test_results['recall']:.3f}")
-    print(f"Specificity: {1 - test_results['recall']:.3f}")
-    print(f"Positive Predictive Value: {test_results['precision']:.3f}")
-    print(f"Overall Accuracy: {test_results['accuracy']:.3f}")
-
-# Run the pipeline (example with the provided dataset)
+# Usage example
 if __name__ == "__main__":
-    # Note: Replace with actual path to your CSV file
-    csv_file_path = "Dataset.csv"
+    # Initialize the identifier
+    dmd_identifier = DMDGeneIdentifier()
     
-    try:
-        pipeline, results = run_dmd_detection_pipeline(csv_file_path)
-        interpret_dmd_results(results)
-        
-        print("\n=== Pipeline completed successfully! ===")
-        print("The GNN model has been trained and evaluated for DMD detection.")
-        print("In a real clinical setting, this would be integrated with:")
-        print("- Electronic Health Records (EHR)")
-        print("- Laboratory Information Systems")
-        print("- Clinical Decision Support Systems")
-        
-    except Exception as e:
-        print(f"Error running pipeline: {str(e)}")
-        print("Please ensure the CSV file path is correct and the file is accessible.")
+    # List of datasets to process
+    datasets = ["GSE38417", "GSE6011", "GSE19303", "GSE42955"]
+    
+    # Train and evaluate
+    results = dmd_identifier.train_and_evaluate(datasets)
+    
+    # Summary across all datasets
+    print(f"\n{'='*60}")
+    print("SUMMARY ACROSS ALL DATASETS")
+    print(f"{'='*60}")
+    
+    for dataset_name, result in results.items():
+        if 'cv_scores' in result:
+            mean_score = result['cv_scores'].mean()
+            print(f"{dataset_name}: ROC-AUC = {mean_score:.3f}")

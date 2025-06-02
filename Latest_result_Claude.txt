@@ -1,0 +1,170 @@
+
+==================================================
+Processing Dataset: GSE38417
+==================================================
+Dataset shape: (22189, 16)
+Features created: 33
+Positive samples: 14/22189 (0.06%)
+Selected features: 29
+Top selected features: ['GO:Function_muscle_weighted', 'GO:Function_cytoskeleton_weighted', 'GO:Function_membrane_weighted', 'GO:Function_calcium_weighted', 'GO:Process_muscle_weighted', 'GO:Process_dystrophin_weighted', 'GO:Process_cytoskeleton_weighted', 'GO:Process_membrane_weighted', 'GO:Process_calcium_weighted', 'GO:Process_contraction_weighted']
+Cross-validation ROC-AUC: 0.810 (+/- 0.299)
+
+Top 10 Most Important Features:
+                               feature  importance
+4           GO:Process_muscle_weighted    0.195428
+13      GO:Component_membrane_weighted    0.191910
+11    GO:Component_dystrophin_weighted    0.113579
+9      GO:Process_contraction_weighted    0.112084
+7         GO:Process_membrane_weighted    0.104000
+0          GO:Function_muscle_weighted    0.078098
+12  GO:Component_cytoskeleton_weighted    0.066555
+3         GO:Function_calcium_weighted    0.032719
+8          GO:Process_calcium_weighted    0.028944
+23                         symbol_SGCB    0.013608
+
+High-confidence DMD-related genes (score > 0.7):
+  CAPN3: 0.854
+  DAG1: 0.908
+  DMD: 0.897
+  PGM5: 0.775
+  SGCA: 0.947
+  SGCB: 0.887
+  SGCD: 0.924
+  SGCG: 0.880
+  SNTB2: 0.775
+  DYSF: 0.865
+  TCAP: 0.780
+  SGCE: 0.701
+  MYOM2: 0.780
+  MAGEE1: 0.775
+  FKRP: 0.775
+  LOC101929800///LOC101927424///LOC440896///PGM5: 0.775
+
+==================================================
+Processing Dataset: GSE6011
+==================================================
+Dataset shape: (13299, 16)
+Features created: 33
+Positive samples: 14/13299 (0.11%)
+Selected features: 7
+Top selected features: ['GO:Component_dystrophin_weighted', 'symbol_DMD', 'symbol_SGCB', 'symbol_SGCD', 'symbol_SGCG', 'symbol_CAPN3', 'symbol_DYSF']
+Cross-validation ROC-AUC: 0.800 (+/- 0.327)
+
+Top 10 Most Important Features:
+                            feature  importance
+0  GO:Component_dystrophin_weighted    0.519578
+4                       symbol_SGCG    0.124307
+5                      symbol_CAPN3    0.117593
+6                       symbol_DYSF    0.112902
+2                       symbol_SGCB    0.049927
+1                        symbol_DMD    0.042429
+3                       symbol_SGCD    0.033263
+
+High-confidence DMD-related genes (score > 0.7):
+  CAPN3: 0.867
+  CAV3: 0.921
+  DAG1: 0.921
+  DMD: 0.947
+  KRT8: 0.921
+  KRT19: 0.921
+  PGM5: 0.921
+  SGCA: 0.921
+  SGCB: 0.967
+  SGCD: 0.967
+  SGCG: 0.875
+  SNTB1: 0.921
+  SNTB2: 0.921
+  UTRN: 0.921
+  SSPN: 0.921
+  DYSF: 0.866
+  SGCE: 0.921
+  FKRP: 0.921
+
+==================================================
+Processing Dataset: GSE19303
+==================================================
+Dataset shape: (22189, 16)
+Features created: 33
+Positive samples: 14/22189 (0.06%)
+Selected features: 29
+Top selected features: ['GO:Function_muscle_weighted', 'GO:Function_cytoskeleton_weighted', 'GO:Function_membrane_weighted', 'GO:Function_calcium_weighted', 'GO:Process_muscle_weighted', 'GO:Process_dystrophin_weighted', 'GO:Process_cytoskeleton_weighted', 'GO:Process_membrane_weighted', 'GO:Process_calcium_weighted', 'GO:Process_contraction_weighted']
+Cross-validation ROC-AUC: 0.810 (+/- 0.299)
+
+Top 10 Most Important Features:
+                               feature  importance
+4           GO:Process_muscle_weighted    0.195428
+13      GO:Component_membrane_weighted    0.191910
+11    GO:Component_dystrophin_weighted    0.113579
+9      GO:Process_contraction_weighted    0.112084
+7         GO:Process_membrane_weighted    0.104000
+0          GO:Function_muscle_weighted    0.078098
+12  GO:Component_cytoskeleton_weighted    0.066555
+3         GO:Function_calcium_weighted    0.032719
+8          GO:Process_calcium_weighted    0.028944
+23                         symbol_SGCB    0.013608
+
+High-confidence DMD-related genes (score > 0.7):
+  CAPN3: 0.854
+  DAG1: 0.908
+  DMD: 0.897
+  PGM5: 0.775
+  SGCA: 0.947
+  SGCB: 0.887
+  SGCD: 0.924
+  SGCG: 0.880
+  SNTB2: 0.775
+  DYSF: 0.865
+  TCAP: 0.780
+  SGCE: 0.701
+  MYOM2: 0.780
+  MAGEE1: 0.775
+  FKRP: 0.775
+  LOC101929800///LOC101927424///LOC440896///PGM5: 0.775
+
+==================================================
+Processing Dataset: GSE42955
+==================================================
+Dataset shape: (20358, 16)
+Features created: 33
+Positive samples: 13/20358 (0.06%)
+Selected features: 32
+Top selected features: ['GO:Function_muscle_weighted', 'GO:Function_cytoskeleton_weighted', 'GO:Function_membrane_weighted', 'GO:Function_calcium_weighted', 'GO:Function_contraction_weighted', 'GO:Process_muscle_weighted', 'GO:Process_dystrophin_weighted', 'GO:Process_cytoskeleton_weighted', 'GO:Process_membrane_weighted', 'GO:Process_calcium_weighted']
+Cross-validation ROC-AUC: 0.734 (+/- 0.506)
+
+Top 10 Most Important Features:
+                               feature  importance
+5           GO:Process_muscle_weighted    0.197004
+14      GO:Component_membrane_weighted    0.185199
+12    GO:Component_dystrophin_weighted    0.169041
+10     GO:Process_contraction_weighted    0.113391
+13  GO:Component_cytoskeleton_weighted    0.081638
+0          GO:Function_muscle_weighted    0.061012
+8         GO:Process_membrane_weighted    0.060098
+3         GO:Function_calcium_weighted    0.022275
+30                         symbol_DYSF    0.020102
+9          GO:Process_calcium_weighted    0.018219
+
+High-confidence DMD-related genes (score > 0.7):
+  DAG1: 0.888
+  DMD: 0.909
+  PGM5: 0.776
+  SGCA: 0.942
+  SGCB: 0.889
+  SGCD: 0.933
+  SGCG: 0.868
+  SNTB2: 0.776
+  DYSF: 0.861
+  TCAP: 0.767
+  SGCE: 0.738
+  MYOM2: 0.767
+  MAGEE1: 0.776
+  FKRP: 0.776
+  PGM5P2///PGM5: 0.776
+
+============================================================
+SUMMARY ACROSS ALL DATASETS
+============================================================
+GSE38417: ROC-AUC = 0.810
+GSE6011: ROC-AUC = 0.800
+GSE19303: ROC-AUC = 0.810
+GSE42955: ROC-AUC = 0.734
