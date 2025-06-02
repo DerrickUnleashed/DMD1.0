@@ -1,0 +1,64 @@
+Dataset_GSE38417 shape: (22189, 16)
+Epoch 20, Loss: 0.0904, Test Acc: 1.0000
+Epoch 40, Loss: 0.0196, Test Acc: 1.0000
+Epoch 60, Loss: 0.0114, Test Acc: 1.0000
+Epoch 80, Loss: 0.0086, Test Acc: 1.0000
+Epoch 100, Loss: 0.0072, Test Acc: 1.0000
+Epoch 120, Loss: 0.0061, Test Acc: 1.0000
+Epoch 140, Loss: 0.0060, Test Acc: 1.0000
+Epoch 160, Loss: 0.0057, Test Acc: 1.0000
+Epoch 180, Loss: 0.0056, Test Acc: 1.0000
+Epoch 200, Loss: 0.0049, Test Acc: 1.0000
+
+Test Predictions for GSE38417: tensor([0, 0, 0,  ..., 0, 0, 0], device='mps:0')
+Test Labels: tensor([0, 0, 0,  ..., 0, 0, 0], device='mps:0')
+
+Potentially DMD-Related Genes for GSE38417: []
+Dataset_GSE6011 shape: (13299, 16)
+Epoch 20, Loss: 0.0342, Test Acc: 1.0000
+Epoch 40, Loss: 0.0081, Test Acc: 1.0000
+Epoch 60, Loss: 0.0052, Test Acc: 1.0000
+Epoch 80, Loss: 0.0044, Test Acc: 1.0000
+Epoch 100, Loss: 0.0034, Test Acc: 1.0000
+Epoch 120, Loss: 0.0030, Test Acc: 1.0000
+Epoch 140, Loss: 0.0024, Test Acc: 1.0000
+Epoch 160, Loss: 0.0024, Test Acc: 1.0000
+Epoch 180, Loss: 0.0023, Test Acc: 1.0000
+Epoch 200, Loss: 0.0021, Test Acc: 1.0000
+
+Test Predictions for GSE6011: tensor([0, 0, 0,  ..., 0, 0, 0], device='mps:0')
+Test Labels: tensor([0, 0, 0,  ..., 0, 0, 0], device='mps:0')
+
+Potentially DMD-Related Genes for GSE6011: []
+Dataset_GSE19303 shape: (22189, 16)
+Epoch 20, Loss: 0.0111, Test Acc: 1.0000
+Epoch 40, Loss: 0.0036, Test Acc: 1.0000
+Epoch 60, Loss: 0.0024, Test Acc: 1.0000
+Epoch 80, Loss: 0.0019, Test Acc: 1.0000
+Epoch 100, Loss: 0.0017, Test Acc: 1.0000
+Epoch 120, Loss: 0.0019, Test Acc: 1.0000
+Epoch 140, Loss: 0.0013, Test Acc: 1.0000
+Epoch 160, Loss: 0.0014, Test Acc: 1.0000
+Epoch 180, Loss: 0.0012, Test Acc: 1.0000
+Epoch 200, Loss: 0.0008, Test Acc: 1.0000
+
+Test Predictions for GSE19303: tensor([0, 0, 0,  ..., 0, 0, 0], device='mps:0')
+Test Labels: tensor([0, 0, 0,  ..., 0, 0, 0], device='mps:0')
+
+Potentially DMD-Related Genes for GSE19303: []
+Dataset_GSE42955 shape: (20358, 16)
+Epoch 20, Loss: 0.0773, Test Acc: 1.0000
+Epoch 40, Loss: 0.0098, Test Acc: 1.0000
+Epoch 60, Loss: 0.0054, Test Acc: 1.0000
+Epoch 80, Loss: 0.0042, Test Acc: 1.0000
+Epoch 100, Loss: 0.0036, Test Acc: 1.0000
+Epoch 120, Loss: 0.0030, Test Acc: 1.0000
+Epoch 140, Loss: 0.0026, Test Acc: 1.0000
+Epoch 160, Loss: 0.0023, Test Acc: 1.0000
+Epoch 180, Loss: 0.0023, Test Acc: 1.0000
+Epoch 200, Loss: 0.0019, Test Acc: 1.0000
+
+Test Predictions for GSE42955: tensor([0, 0, 0,  ..., 0, 0, 0], device='mps:0')
+Test Labels: tensor([0, 0, 0,  ..., 0, 0, 0], device='mps:0')
+
+Potentially DMD-Related Genes for GSE42955: []
