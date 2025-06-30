@@ -1,0 +1,146 @@
+
+==================================================
+Processing Dataset: GSE38417
+==================================================
+Dataset shape: (22189, 16)
+Features created: 33
+Positive samples: 14/22189 (0.06%)
+RandomForest ROC-AUC: 0.734 (+/- 0.306)
+SVM ROC-AUC: 0.903 (+/- 0.197)
+GradientBoosting ROC-AUC: 0.364 (+/- 0.411)
+LogisticRegression ROC-AUC: 0.605 (+/- 0.635)
+NeuralNetwork ROC-AUC: 0.762 (+/- 0.237)
+Stacking Ensemble ROC-AUC: 0.356 (+/- 0.407)
+
+Top 10 Most Important Features:
+                             feature  importance
+7     GO:Component_membrane_weighted    0.223222
+1         GO:Process_muscle_weighted    0.218637
+6   GO:Component_dystrophin_weighted    0.166098
+4    GO:Process_contraction_weighted    0.101128
+2       GO:Process_membrane_weighted    0.095802
+0        GO:Function_muscle_weighted    0.094649
+3        GO:Process_calcium_weighted    0.037189
+15                       symbol_SGCG    0.013199
+16                      symbol_CAPN3    0.011041
+13                       symbol_SGCB    0.010396
+Generating SHAP summary plot...
+
+==================================================
+Processing Dataset: GSE6011
+==================================================
+Dataset shape: (13299, 16)
+Features created: 33
+Positive samples: 14/13299 (0.11%)
+RandomForest ROC-AUC: 0.667 (+/- 0.321)
+SVM ROC-AUC: 0.877 (+/- 0.183)
+GradientBoosting ROC-AUC: 0.483 (+/- 0.304)
+LogisticRegression ROC-AUC: 0.751 (+/- 0.362)
+NeuralNetwork ROC-AUC: 0.797 (+/- 0.407)
+Stacking Ensemble ROC-AUC: 0.680 (+/- 0.527)
+
+Top 10 Most Important Features:
+                             feature  importance
+0         GO:Process_muscle_weighted    0.252239
+3   GO:Component_dystrophin_weighted    0.213626
+4     GO:Component_membrane_weighted    0.189227
+2    GO:Process_contraction_weighted    0.145607
+1       GO:Process_membrane_weighted    0.104678
+11                      symbol_CAPN3    0.030784
+12                       symbol_DYSF    0.018340
+8                        symbol_SGCB    0.016164
+10                       symbol_SGCG    0.012238
+5                   title_dystrophin    0.004990
+Generating SHAP summary plot...
+
+==================================================
+Processing Dataset: GSE19303
+==================================================
+Dataset shape: (22189, 16)
+Features created: 33
+Positive samples: 14/22189 (0.06%)
+RandomForest ROC-AUC: 0.734 (+/- 0.306)
+SVM ROC-AUC: 0.903 (+/- 0.197)
+GradientBoosting ROC-AUC: 0.364 (+/- 0.411)
+LogisticRegression ROC-AUC: 0.605 (+/- 0.635)
+NeuralNetwork ROC-AUC: 0.762 (+/- 0.237)
+Stacking Ensemble ROC-AUC: 0.326 (+/- 0.343)
+
+Top 10 Most Important Features:
+                             feature  importance
+7     GO:Component_membrane_weighted    0.223222
+1         GO:Process_muscle_weighted    0.218637
+6   GO:Component_dystrophin_weighted    0.166098
+4    GO:Process_contraction_weighted    0.101128
+2       GO:Process_membrane_weighted    0.095802
+0        GO:Function_muscle_weighted    0.094649
+3        GO:Process_calcium_weighted    0.037189
+15                       symbol_SGCG    0.013199
+16                      symbol_CAPN3    0.011041
+13                       symbol_SGCB    0.010396
+Generating SHAP summary plot...
+
+==================================================
+Processing Dataset: GSE42955
+==================================================
+Dataset shape: (20358, 16)
+Features created: 33
+Positive samples: 13/20358 (0.06%)
+RandomForest ROC-AUC: 0.629 (+/- 0.473)
+SVM ROC-AUC: 0.695 (+/- 0.419)
+GradientBoosting ROC-AUC: 0.342 (+/- 0.544)
+LogisticRegression ROC-AUC: 0.678 (+/- 0.541)
+NeuralNetwork ROC-AUC: 0.647 (+/- 0.532)
+Stacking Ensemble ROC-AUC: 0.721 (+/- 0.557)
+
+Top 10 Most Important Features:
+                             feature  importance
+2   GO:Component_dystrophin_weighted    0.261529
+3     GO:Component_membrane_weighted    0.230946
+0         GO:Process_muscle_weighted    0.230146
+1    GO:Process_contraction_weighted    0.187362
+7                        symbol_SGCB    0.021231
+9                        symbol_SGCG    0.019574
+10                       symbol_DYSF    0.019283
+8                        symbol_SGCD    0.010126
+6                        symbol_SGCA    0.007293
+4                   title_dystrophin    0.006447
+Generating SHAP summary plot...
+
+Cross-dataset validation:
+Stacking Ensemble ROC-AUC: 0.335 (+/- 0.370)
+Train on GSE38417, Test on GSE6011: ROC-AUC = 0.911
+Train on GSE38417, Test on GSE19303: ROC-AUC = 0.926
+Train on GSE38417, Test on GSE42955: ROC-AUC = 0.910
+Stacking Ensemble ROC-AUC: 0.679 (+/- 0.526)
+Train on GSE6011, Test on GSE38417: ROC-AUC = 0.880
+Train on GSE6011, Test on GSE19303: ROC-AUC = 0.880
+Train on GSE6011, Test on GSE42955: ROC-AUC = 0.864
+Stacking Ensemble ROC-AUC: 0.322 (+/- 0.338)
+Train on GSE19303, Test on GSE38417: ROC-AUC = 0.927
+Train on GSE19303, Test on GSE6011: ROC-AUC = 0.911
+Train on GSE19303, Test on GSE42955: ROC-AUC = 0.910
+Stacking Ensemble ROC-AUC: 0.721 (+/- 0.557)
+Train on GSE42955, Test on GSE38417: ROC-AUC = 0.746
+Train on GSE42955, Test on GSE6011: ROC-AUC = 0.736
+Train on GSE42955, Test on GSE19303: ROC-AUC = 0.746
+Top 20 candidate genes:
+  GO:Process_muscle_weighted (avg importance: 0.2299)
+  GO:Component_membrane_weighted (avg importance: 0.2167)
+  GO:Component_dystrophin_weighted (avg importance: 0.2018)
+  GO:Process_contraction_weighted (avg importance: 0.1338)
+  GO:Process_membrane_weighted (avg importance: 0.0988)
+  GO:Function_muscle_weighted (avg importance: 0.0946)
+  GO:Process_calcium_weighted (avg importance: 0.0372)
+  symbol_CAPN3 (avg importance: 0.0176)
+  symbol_DYSF (avg importance: 0.0146)
+  symbol_SGCG (avg importance: 0.0146)
+  symbol_SGCB (avg importance: 0.0145)
+  symbol_SGCD (avg importance: 0.0068)
+  symbol_SGCA (avg importance: 0.0054)
+  title_dystrophin (avg importance: 0.0043)
+  symbol_DMD (avg importance: 0.0024)
+  title_myosin (avg importance: 0.0016)
+  GO:Component_calcium_weighted (avg importance: 0.0012)
+  GO:Component_muscle_weighted (avg importance: 0.0011)
+  muscle_membrane_interaction (avg importance: 0.0001)
