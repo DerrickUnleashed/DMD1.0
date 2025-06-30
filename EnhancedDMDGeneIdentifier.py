@@ -159,11 +159,15 @@ class EnhancedDMDGeneIdentifier:
         model.fit(X, y)
         return model
 
-    def interpret_model(self, model, X, feature_names):
+    def interpret_model(self, model, X, feature_names, dataset_name):
         """Interpret model predictions using SHAP"""
-        explainer = shap.Explainer(model, X)
-        shap_values = explainer(X)
-        shap.summary_plot(shap_values, features=X, feature_names=feature_names, show=True)
+
+        base_model = model.named_estimators_['RandomForest']
+        explainer = shap.TreeExplainer(base_model)
+        shap_values = explainer.shap_values(X)
+        shap.summary_plot(shap_values, features=X, feature_names=feature_names, show=False)
+        plt.savefig(f'shap_summary_plot_{dataset_name}.png', bbox_inches='tight', dpi=300)
+        plt.close()
 
     def cross_dataset_validation(self, datasets):
         """Train on one dataset and test on others to assess generalizability"""
@@ -300,7 +304,7 @@ class EnhancedDMDGeneIdentifier:
 
                 # Interpret model
                 print("Generating SHAP summary plot...")
-                self.interpret_model(final_model, X_selected, self.final_feature_names)
+                self.interpret_model(final_model, X_selected, self.final_feature_names, dataset_name)
 
             except Exception as e:
                 print(f"Error processing {dataset_name}: {e}")

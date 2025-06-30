@@ -10,7 +10,7 @@ SVM ROC-AUC: 0.903 (+/- 0.197)
 GradientBoosting ROC-AUC: 0.364 (+/- 0.411)
 LogisticRegression ROC-AUC: 0.605 (+/- 0.635)
 NeuralNetwork ROC-AUC: 0.762 (+/- 0.237)
-Stacking Ensemble ROC-AUC: 0.356 (+/- 0.407)
+Stacking Ensemble ROC-AUC: 0.341 (+/- 0.359)
 
 Top 10 Most Important Features:
                              feature  importance
@@ -64,7 +64,7 @@ SVM ROC-AUC: 0.903 (+/- 0.197)
 GradientBoosting ROC-AUC: 0.364 (+/- 0.411)
 LogisticRegression ROC-AUC: 0.605 (+/- 0.635)
 NeuralNetwork ROC-AUC: 0.762 (+/- 0.237)
-Stacking Ensemble ROC-AUC: 0.326 (+/- 0.343)
+Stacking Ensemble ROC-AUC: 0.323 (+/- 0.338)
 
 Top 10 Most Important Features:
                              feature  importance
@@ -108,21 +108,21 @@ Top 10 Most Important Features:
 Generating SHAP summary plot...
 
 Cross-dataset validation:
-Stacking Ensemble ROC-AUC: 0.335 (+/- 0.370)
+Stacking Ensemble ROC-AUC: 0.323 (+/- 0.337)
 Train on GSE38417, Test on GSE6011: ROC-AUC = 0.911
-Train on GSE38417, Test on GSE19303: ROC-AUC = 0.926
+Train on GSE38417, Test on GSE19303: ROC-AUC = 0.927
 Train on GSE38417, Test on GSE42955: ROC-AUC = 0.910
 Stacking Ensemble ROC-AUC: 0.679 (+/- 0.526)
 Train on GSE6011, Test on GSE38417: ROC-AUC = 0.880
 Train on GSE6011, Test on GSE19303: ROC-AUC = 0.880
 Train on GSE6011, Test on GSE42955: ROC-AUC = 0.864
-Stacking Ensemble ROC-AUC: 0.322 (+/- 0.338)
+Stacking Ensemble ROC-AUC: 0.321 (+/- 0.337)
 Train on GSE19303, Test on GSE38417: ROC-AUC = 0.927
 Train on GSE19303, Test on GSE6011: ROC-AUC = 0.911
 Train on GSE19303, Test on GSE42955: ROC-AUC = 0.910
 Stacking Ensemble ROC-AUC: 0.721 (+/- 0.557)
 Train on GSE42955, Test on GSE38417: ROC-AUC = 0.746
-Train on GSE42955, Test on GSE6011: ROC-AUC = 0.736
+Train on GSE42955, Test on GSE6011: ROC-AUC = 0.737
 Train on GSE42955, Test on GSE19303: ROC-AUC = 0.746
 Top 20 candidate genes:
   GO:Process_muscle_weighted (avg importance: 0.2299)
