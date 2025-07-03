@@ -1,14 +1,79 @@
-
 ==================================================
 Processing Dataset: Combined
 ==================================================
 Dataset shape: (78035, 17)
 Features created: 33
 Positive samples: 55/78035 (0.07%)
-RandomForest ROC-AUC: 0.966 (+/- 0.056)
-SVM ROC-AUC: 0.957 (+/- 0.067)
-NeuralNetwork ROC-AUC: 0.957 (+/- 0.068)
-Stacking Ensemble ROC-AUC: 0.956 (+/- 0.077)
+
+==== RandomForest ====
+Cross-validated ROC-AUC: 0.966 (+/- 0.056)
+Accuracy: 0.9901326327929775
+Classification Report:
+               precision    recall  f1-score   support
+
+      NORMAL       1.00      0.99      1.00     15596
+         DMD       0.06      0.91      0.11        11
+
+    accuracy                           0.99     15607
+   macro avg       0.53      0.95      0.55     15607
+weighted avg       1.00      0.99      0.99     15607
+
+Confusion Matrix:
+ [[15443   153]
+ [    1    10]]
+AUC-ROC Score: 0.9496403506726666
+Jaccard Score: 0.06097560975609756
+Precision-Recall AUC: 0.4513333242709674
+Matthews Correlation Coefficient: 0.23476023234551405
+Cohen's Kappa: 0.11377225637455612
+Log Loss: 0.18470469711670331
+
+==== SVM ====
+Cross-validated ROC-AUC: 0.957 (+/- 0.067)
+Accuracy: 0.989876337540847
+Classification Report:
+               precision    recall  f1-score   support
+
+      NORMAL       1.00      0.99      0.99     15596
+         DMD       0.06      0.91      0.11        11
+
+    accuracy                           0.99     15607
+   macro avg       0.53      0.95      0.55     15607
+weighted avg       1.00      0.99      0.99     15607
+
+Confusion Matrix:
+ [[15439   157]
+ [    1    10]]
+AUC-ROC Score: 0.9495121126629207
+Jaccard Score: 0.05952380952380952
+Precision-Recall AUC: 0.12169929540853935
+Matthews Correlation Coefficient: 0.2318955777716693
+Cohen's Kappa: 0.11118408057751461
+Log Loss: 0.0039197432095026625
+
+==== NeuralNetwork ====
+Cross-validated ROC-AUC: 0.957 (+/- 0.068)
+Accuracy: 0.9996796309348369
+Classification Report:
+               precision    recall  f1-score   support
+
+      NORMAL       1.00      1.00      1.00     15596
+         DMD       0.88      0.64      0.74        11
+
+    accuracy                           1.00     15607
+   macro avg       0.94      0.82      0.87     15607
+weighted avg       1.00      1.00      1.00     15607
+
+Confusion Matrix:
+ [[15595     1]
+ [    4     7]]
+AUC-ROC Score: 0.8181497586793816
+Jaccard Score: 0.5833333333333334
+Precision-Recall AUC: 0.6706636771666221
+Matthews Correlation Coefficient: 0.7460555699860941
+Cohen's Kappa: 0.7366858214923218
+Log Loss: 0.002191087791543893
+Stacking Ensemble ROC-AUC: 0.964 (+/- 0.027)
 
 Top 10 Most Important Features:
                                feature  importance
@@ -22,3 +87,4 @@ Top 10 Most Important Features:
 3          GO:Process_calcium_weighted    0.019832
 18                         symbol_DYSF    0.017506
 17                        symbol_CAPN3    0.012811
+Generating SHAP summary plot...
