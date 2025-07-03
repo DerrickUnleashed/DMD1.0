@@ -1,0 +1,24 @@
+
+==================================================
+Processing Dataset: Combined
+==================================================
+Dataset shape: (78035, 17)
+Features created: 33
+Positive samples: 55/78035 (0.07%)
+RandomForest ROC-AUC: 0.966 (+/- 0.056)
+SVM ROC-AUC: 0.957 (+/- 0.067)
+NeuralNetwork ROC-AUC: 0.957 (+/- 0.068)
+Stacking Ensemble ROC-AUC: 0.956 (+/- 0.077)
+
+Top 10 Most Important Features:
+                               feature  importance
+1           GO:Process_muscle_weighted    0.214465
+8       GO:Component_membrane_weighted    0.208353
+6     GO:Component_dystrophin_weighted    0.166861
+4      GO:Process_contraction_weighted    0.097570
+2         GO:Process_membrane_weighted    0.091668
+0          GO:Function_muscle_weighted    0.076872
+7   GO:Component_cytoskeleton_weighted    0.066618
+3          GO:Process_calcium_weighted    0.019832
+18                         symbol_DYSF    0.017506
+17                        symbol_CAPN3    0.012811
