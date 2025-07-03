@@ -118,12 +118,6 @@ class EnhancedDMDGeneIdentifier:
                 class_weight='balanced', random_state=self.random_state
             ),
             'SVM': SVC(probability=True, kernel='rbf', class_weight='balanced', random_state=self.random_state),
-            'GradientBoosting': GradientBoostingClassifier(
-                n_estimators=200, max_depth=6, learning_rate=0.1, random_state=self.random_state
-            ),
-            'LogisticRegression': LogisticRegression(
-                class_weight='balanced', max_iter=1000, random_state=self.random_state
-            ),
             'NeuralNetwork': MLPClassifier(
                 hidden_layer_sizes=(100,), max_iter=500, random_state=self.random_state
             )
@@ -320,6 +314,6 @@ class EnhancedDMDGeneIdentifier:
 
 
 if __name__ == "__main__":
-    datasets = ["GSE38417", "GSE6011", "GSE19303", "GSE42955"]
+    datasets = ["Combined"]
     identifier = EnhancedDMDGeneIdentifier()
     all_results, cross_val_results, top_candidates = identifier.run_full_pipeline(datasets)
